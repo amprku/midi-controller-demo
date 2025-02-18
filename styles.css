@@ -8,6 +8,69 @@
     --success-color: #4CAF50;
 }
 
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    /* Stack the scale and override sections vertically */
+    .control-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* Make the chord grid 3 columns instead of 4 on mobile */
+    .chord-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Adjust global controls for mobile */
+    .global-controls {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* Make memory slots 4 per row instead of 8 */
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Adjust keyboard size */
+    #keyboard {
+        height: 160px;
+        margin: 20px 0;
+    }
+
+    /* Adjust key widths for single octave */
+    .key.white {
+        width: calc(100% / 7) !important; /* 7 white keys per octave */
+        margin: 0 1px;
+    }
+
+    .key.black {
+        width: calc(100% / 7 * 0.7) !important; /* Maintain proportion with white keys */
+    }
+
+    /* Make buttons more tappable */
+    .button-group button,
+    .chord-grid button {
+        padding: 10px;
+        min-height: 44px; /* iOS minimum tappable size */
+    }
+}
+
+/* Prevent zoom on iOS when tapping inputs */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    select,
+    button {
+        font-size: 16px;
+    }
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);

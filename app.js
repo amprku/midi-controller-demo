@@ -20,11 +20,20 @@ class ChordGenerator {
         this.setupKeyboard();
         this.setupControls();
         this.updateKeyboardVisuals();
+        
+        // Add touch event handling for mobile
+        this.setupTouchHandling();
+
+        // Handle window resizing
+        window.addEventListener('resize', () => {
+            this.rebuildKeyboard();
+        });
     }
 
     setupKeyboard() {
         const keyboard = document.getElementById('keyboard');
-        const octaves = 2;
+        // Determine number of octaves based on screen width
+        const octaves = window.innerWidth <= 768 ? 1 : 2;
         const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         const whiteNotes = notes.filter(note => !note.includes('#'));
         const blackNotes = notes.filter(note => note.includes('#'));
@@ -114,18 +123,20 @@ class ChordGenerator {
             }
         });
 
-        // Handle touch events
+        // Improve touch handling
         key.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            key.classList.add('active');
-            this.playChord(note, this.baseOctave + octave);
-        });
+            if (this.isNotePlayable(note) || this.tempOverride) {
+                key.classList.add('active');
+                this.playChord(note, this.baseOctave + octave);
+            }
+        }, { passive: false });
 
         key.addEventListener('touchend', (e) => {
             e.preventDefault();
             key.classList.remove('active');
             this.stopChord();
-        });
+        }, { passive: false });
     }
 
     setupControls() {
@@ -698,6 +709,33 @@ class ChordGenerator {
         const keyOffset = noteToNumber[this.currentKey];
         const noteNum = (noteToNumber[note] - keyOffset + 12) % 12;
         return modeIntervals[this.currentMode].includes(noteNum);
+    }
+
+    // Add this new method
+    setupTouchHandling() {
+        // Prevent default touch behaviors
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.classList.contains('key')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Prevent double-tap zoom
+        document.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+        });
+    }
+
+    // Add new method to rebuild keyboard
+    rebuildKeyboard() {
+        const keyboard = document.getElementById('keyboard');
+        keyboard.innerHTML = ''; // Clear existing keyboard
+        this.setupKeyboard();
+        this.updateKeyboardVisuals();
     }
 }
 
