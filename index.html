@@ -115,22 +115,43 @@
         
         <div id="keyboard"></div>
         
+        <div class="scale-keyboard-section">
+            <h3>Scale Notes</h3>
+            <div id="scale-keyboard" class="scale-keyboard"></div>
+        </div>
+        
         <div class="memory-section">
             <div class="memory-header">
                 <h3>Chord Memory</h3>
-                <button id="memory-lock" class="lock-button">
-                    <span class="lock-icon">🔓</span>
-                </button>
+                <div class="memory-controls">
+                    <button id="clear-memory" class="clear-button" title="Clear all memory slots">
+                        Clear All
+                    </button>
+                    <button id="memory-lock" class="lock-button">
+                        <span class="lock-icon">🔓</span>
+                    </button>
+                </div>
             </div>
             <div class="memory-grid">
-                <button class="memory-slot empty" data-slot="0">-</button>
-                <button class="memory-slot empty" data-slot="1">-</button>
-                <button class="memory-slot empty" data-slot="2">-</button>
-                <button class="memory-slot empty" data-slot="3">-</button>
-                <button class="memory-slot empty" data-slot="4">-</button>
-                <button class="memory-slot empty" data-slot="5">-</button>
-                <button class="memory-slot empty" data-slot="6">-</button>
-                <button class="memory-slot empty" data-slot="7">-</button>
+                <button class="memory-slot empty" data-slot="0" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="1" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="2" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="3" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="4" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="5" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="6" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="7" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="8" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="9" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="10" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="11" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="12" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="13" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="14" draggable="true">-</button>
+                <button class="memory-slot empty" data-slot="15" draggable="true">-</button>
+            </div>
+            <div id="memory-trash" class="memory-trash">
+                🗑️
             </div>
         </div>
         

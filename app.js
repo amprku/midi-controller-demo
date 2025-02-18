@@ -15,11 +15,13 @@ class ChordGenerator {
         this.tempInversion = null;
         
         this.memoryLocked = false;
-        this.chordMemory = new Array(8).fill(null);
+        this.chordMemory = new Array(16).fill(null);
         
         this.setupKeyboard();
         this.setupControls();
         this.updateKeyboardVisuals();
+        this.updateScaleKeyboard();
+        this.setupOctaveKeyboardShortcuts();
         
         // Add touch event handling for mobile
         this.setupTouchHandling();
@@ -166,11 +168,13 @@ class ChordGenerator {
         document.getElementById('key-select').addEventListener('change', (e) => {
             this.currentKey = e.target.value;
             this.updateKeyboardVisuals();
+            this.updateScaleKeyboard();
         });
 
         document.getElementById('mode-select').addEventListener('change', (e) => {
             this.currentMode = e.target.value;
             this.updateKeyboardVisuals();
+            this.updateScaleKeyboard();
         });
 
         // Quality buttons
@@ -293,6 +297,80 @@ class ChordGenerator {
                 button.classList.remove('active');
                 this.stopChord();
             });
+        });
+
+        // Add clear all functionality
+        document.getElementById('clear-memory').addEventListener('click', () => {
+            if (confirm('Clear all memory slots?')) {
+                this.chordMemory = new Array(16).fill(null);
+                this.updateMemorySlots();
+            }
+        });
+
+        // Setup drag and drop for memory slots
+        this.setupMemoryDragDrop();
+    }
+
+    setupMemoryDragDrop() {
+        const memorySlots = document.querySelectorAll('.memory-slot');
+        const trashZone = document.getElementById('memory-trash');
+
+        memorySlots.forEach(slot => {
+            slot.addEventListener('dragstart', (e) => {
+                if (this.memoryLocked || slot.classList.contains('empty')) {
+                    e.preventDefault();
+                    return;
+                }
+                e.dataTransfer.setData('text/plain', slot.dataset.slot);
+                slot.classList.add('dragging');
+            });
+
+            slot.addEventListener('dragend', () => {
+                slot.classList.remove('dragging');
+            });
+
+            slot.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!slot.classList.contains('dragging')) {
+                    slot.classList.add('drag-over');
+                }
+            });
+
+            slot.addEventListener('dragleave', () => {
+                slot.classList.remove('drag-over');
+            });
+
+            slot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                slot.classList.remove('drag-over');
+                const sourceIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                const targetIndex = parseInt(slot.dataset.slot);
+                
+                if (sourceIndex !== targetIndex) {
+                    // Swap memory slots
+                    [this.chordMemory[sourceIndex], this.chordMemory[targetIndex]] = 
+                    [this.chordMemory[targetIndex], this.chordMemory[sourceIndex]];
+                    this.updateMemorySlots();
+                }
+            });
+        });
+
+        // Trash zone handling
+        trashZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            trashZone.classList.add('drag-over');
+        });
+
+        trashZone.addEventListener('dragleave', () => {
+            trashZone.classList.remove('drag-over');
+        });
+
+        trashZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            trashZone.classList.remove('drag-over');
+            const sourceIndex = parseInt(e.dataTransfer.getData('text/plain'));
+            this.chordMemory[sourceIndex] = null;
+            this.updateMemorySlots();
         });
     }
 
@@ -630,7 +708,7 @@ class ChordGenerator {
         document.getElementById('keyboard').classList.add('override-active');
 
         // Generate and play the chord without adding to memory
-        const notes = this.getChordNotes(memory.baseNote, memory.octave);
+        const notes = memory.notes;
         
         if (notes.length > 0) {
             // Clear existing playing highlights
@@ -670,18 +748,13 @@ class ChordGenerator {
         // Check if this exact chord configuration already exists in memory
         const isDuplicate = this.chordMemory.some(existing => 
             existing && 
-            existing.baseNote === memory.baseNote &&
-            existing.octave === memory.octave &&
-            existing.override === memory.override &&
-            existing.extension === memory.extension &&
-            existing.inversion === memory.inversion &&
-            existing.voicing === memory.voicing
+            existing.notes.every((note, index) => note === memory.notes[index])
         );
 
         // Only add if it's not a duplicate
         if (!isDuplicate) {
             this.chordMemory.unshift(memory);
-            this.chordMemory = this.chordMemory.slice(0, 8);
+            this.chordMemory = this.chordMemory.slice(0, 16);
             this.updateMemorySlots();
         }
     }
@@ -782,6 +855,120 @@ class ChordGenerator {
             
             document.documentElement.setAttribute('data-theme', newTheme);
             toggle.querySelector('.theme-toggle-icon').textContent = newTheme === 'dark' ? '🌜' : '🌞';
+        });
+    }
+
+    updateScaleKeyboard() {
+        const scaleKeyboard = document.getElementById('scale-keyboard');
+        scaleKeyboard.innerHTML = '';
+
+        const modeIntervals = {
+            major: [0, 2, 4, 5, 7, 9, 11],
+            minor: [0, 2, 3, 5, 7, 8, 10],
+            dorian: [0, 2, 3, 5, 7, 9, 10],
+            phrygian: [0, 1, 3, 5, 7, 8, 10],
+            lydian: [0, 2, 4, 6, 7, 9, 11],
+            mixolydian: [0, 2, 4, 5, 7, 9, 10],
+            locrian: [0, 1, 3, 5, 6, 8, 10]
+        };
+
+        const noteToNumber = {
+            'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+            'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+        };
+
+        const numberToNote = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const keyOffset = noteToNumber[this.currentKey];
+        const currentScale = modeIntervals[this.currentMode];
+
+        // Create scale keys
+        const scaleKeys = []; // Store scale keys for keyboard mapping
+        currentScale.forEach((interval, index) => {
+            const noteNum = (keyOffset + interval) % 12;
+            const note = numberToNote[noteNum];
+            
+            const key = document.createElement('div');
+            key.className = 'scale-key';
+            key.textContent = note;
+            
+            // Store reference to scale key and note
+            scaleKeys[index] = { element: key, note };
+            
+            // Mouse events
+            key.addEventListener('mousedown', () => {
+                key.classList.add('active');
+                this.playChord(note, this.baseOctave);
+            });
+
+            key.addEventListener('mouseup', () => {
+                key.classList.remove('active');
+                this.stopChord();
+            });
+
+            // Touch events
+            key.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                key.classList.add('active');
+                this.playChord(note, this.baseOctave);
+            }, { passive: false });
+
+            key.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                key.classList.remove('active');
+                this.stopChord();
+            }, { passive: false });
+
+            scaleKeyboard.appendChild(key);
+        });
+
+        // Add keyboard event listeners for A-G keys
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return; // Prevent key repeat
+            
+            const keyToIndex = {
+                'a': 0, 's': 1, 'd': 2, 'f': 3,
+                'g': 4, 'h': 5, 'j': 6
+            };
+            const index = keyToIndex[e.key.toLowerCase()];
+            if (index !== undefined && scaleKeys[index]) {
+                const { element, note } = scaleKeys[index];
+                element.classList.add('active');
+                this.playChord(note, this.baseOctave);
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const keyToIndex = {
+                'a': 0, 's': 1, 'd': 2, 'f': 3,
+                'g': 4, 'h': 5, 'j': 6
+            };
+
+            const index = keyToIndex[e.key.toLowerCase()];
+            if (index !== undefined && scaleKeys[index]) {
+                const { element } = scaleKeys[index];
+                element.classList.remove('active');
+                this.stopChord();
+            }
+        });
+    }
+
+    setupOctaveKeyboardShortcuts() {
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return; // Prevent key repeat
+
+            if (e.key.toLowerCase() === 'z') {
+                if (this.baseOctave > 2) {  // Limit lower octave
+                    this.baseOctave--;
+                    document.getElementById('octave-display').textContent = this.baseOctave;
+                    this.updateKeyboardVisuals();
+                }
+            } else if (e.key.toLowerCase() === 'x') {
+                if (this.baseOctave < 6) {  // Limit upper octave
+                    this.baseOctave++;
+                    document.getElementById('octave-display').textContent = this.baseOctave;
+                    this.updateKeyboardVisuals();
+                }
+            }
         });
     }
 }
