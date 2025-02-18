@@ -352,7 +352,6 @@ select:hover {
 
 .key {
     position: relative;
-    cursor: pointer;
     transition: all 0.15s ease;
     user-select: none;
 }
@@ -447,12 +446,12 @@ select:hover {
 }
 
 /* Not available keys */
-.key:not(.in-scale):not(.override-active) {
+/* .key:not(.in-scale):not(.override-active) {
     cursor: not-allowed;
-}
+} */
 
 /* Active (pressed) key */
-.key.white:active,
+/* .key.white:active,
 .key.white.active {
     background: var(--key-white-active);
     border-color: var(--primary-color);
@@ -462,7 +461,7 @@ select:hover {
 .key.black.active {
     background: var(--key-black-active);
     border-color: var(--primary-color);
-}
+} */
 
 /* Playing chord notes */
 .key.white.playing {
