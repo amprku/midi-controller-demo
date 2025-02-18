@@ -75,14 +75,16 @@
 @media (max-width: 768px) {
     body {
         padding: 10px;
-        height: auto; /* Allow body to expand */
-        min-height: 100%;
+        min-height: 100vh;
+        height: auto;
+        position: relative;
     }
 
     .container {
         padding: 15px;
-        min-height: 100%;
+        min-height: min-content;
         height: auto;
+        margin-bottom: 20px;
     }
 
     /* Stack the scale and override sections vertically */
@@ -129,6 +131,13 @@
         padding: 10px;
         min-height: 44px; /* iOS minimum tappable size */
     }
+
+    /* Fix theme toggle position on mobile */
+    .theme-toggle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
 }
 
 /* Prevent zoom on iOS when tapping inputs */
@@ -147,8 +156,10 @@ body {
     margin: 0;
     padding: 20px;
     min-height: 100vh;
-    overflow-x: hidden; /* Prevent horizontal scroll */
-    overflow-y: auto; /* Allow vertical scroll */
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
     transition: all 0.3s ease;
 }
 
@@ -162,6 +173,9 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
     overflow-y: visible; /* Allow content to flow */
     transition: all 0.3s ease;
+    min-height: min-content;
+    height: auto;
+    margin-bottom: 20px;
 }
 
 /* Controls Section */
