@@ -1171,7 +1171,7 @@ class ChordGenerator {
             '0,4,7,14': 'add9'
         };
 
-        return chordPatterns[intervalPattern] || '';
+        return chordPatterns[intervalPattern] || 'Custom';
     }
 
     updateMemoryButtonsVisibility() {
