@@ -12,149 +12,173 @@
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
         <span class="theme-toggle-icon">🌞</span>
     </button>
-    
-    <div class="container">
-        <div class="controls">
-            <div class="control-row">
-                <div class="scale-section">
-                    <h3>Scale & Mode</h3>
-                    <div class="control-group">
-                        <label for="key-select">Key:</label>
-                        <select id="key-select">
-                            <option value="C">C</option>
-                            <option value="C#">C#</option>
-                            <option value="D">D</option>
-                            <option value="D#">D#</option>
-                            <option value="E">E</option>
-                            <option value="F">F</option>
-                            <option value="F#">F#</option>
-                            <option value="G">G</option>
-                            <option value="G#">G#</option>
-                            <option value="A">A</option>
-                            <option value="A#">A#</option>
-                            <option value="B">B</option>
-                        </select>
+    <div class="app-layout">
+        <!-- Left Panel - Controls -->
+        <div class="main-container">
+            <div class="controls">
+                <div class="control-row">
+                    <div class="scale-section">
+                        <h3>Scale & Mode</h3>
+                        <div class="control-group">
+                            <label for="key-select">Key:</label>
+                            <select id="key-select">
+                                <option value="C">C</option>
+                                <option value="C#">C#</option>
+                                <option value="D">D</option>
+                                <option value="D#">D#</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                                <option value="F#">F#</option>
+                                <option value="G">G</option>
+                                <option value="G#">G#</option>
+                                <option value="A">A</option>
+                                <option value="A#">A#</option>
+                                <option value="B">B</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="mode-select">Mode:</label>
+                            <select id="mode-select">
+                                <option value="major">Major</option>
+                                <option value="minor">Minor</option>
+                                <option value="dorian">Dorian</option>
+                                <option value="phrygian">Phrygian</option>
+                                <option value="lydian">Lydian</option>
+                                <option value="mixolydian">Mixolydian</option>
+                                <option value="locrian">Locrian</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Extensions:</label>
+                            <div class="button-group" id="chord-extension-buttons">
+                                <button data-value="triad" class="selected">Triad</button>
+                                <button data-value="seventh">Seventh</button>
+                                <button data-value="ninth">Ninth</button>
+                                <button data-value="add9">Add9</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <label for="mode-select">Mode:</label>
-                        <select id="mode-select">
-                            <option value="major">Major</option>
-                            <option value="minor">Minor</option>
-                            <option value="dorian">Dorian</option>
-                            <option value="phrygian">Phrygian</option>
-                            <option value="lydian">Lydian</option>
-                            <option value="mixolydian">Mixolydian</option>
-                            <option value="locrian">Locrian</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label>Extensions:</label>
-                        <div class="button-group" id="chord-extension-buttons">
-                            <button data-value="triad" class="selected">Triad</button>
-                            <button data-value="seventh">Seventh</button>
-                            <button data-value="ninth">Ninth</button>
+                    
+                    <div class="override-section">
+                        <h3>Override Chords</h3>
+                        <div class="chord-grid" id="chord-type-buttons">
+                            <button data-value="major">Major</button>
+                            <button data-value="minor">Minor</button>
+                            <button data-value="diminished">Dim</button>
+                            <button data-value="augmented">Aug</button>
+                            <button data-value="major7">Maj7</button>
+                            <button data-value="minor7">Min7</button>
+                            <button data-value="dominant7">Dom7</button>
+                            <button data-value="diminished7">Dim7</button>
+                            <button data-value="major9">Maj9</button>
+                            <button data-value="minor9">Min9</button>
+                            <button data-value="dominant9">Dom9</button>
+                            <button data-value="sus2">Sus2</button>
+                            <button data-value="sus4">Sus4</button>
+                            <button data-value="major6">Maj6</button>
+                            <button data-value="minor6">Min6</button>
                             <button data-value="add9">Add9</button>
                         </div>
                     </div>
                 </div>
                 
-                <div class="override-section">
-                    <h3>Override Chords</h3>
-                    <div class="chord-grid" id="chord-type-buttons">
-                        <button data-value="major">Major</button>
-                        <button data-value="minor">Minor</button>
-                        <button data-value="diminished">Dim</button>
-                        <button data-value="augmented">Aug</button>
-                        <button data-value="major7">Maj7</button>
-                        <button data-value="minor7">Min7</button>
-                        <button data-value="dominant7">Dom7</button>
-                        <button data-value="diminished7">Dim7</button>
-                        <button data-value="major9">Maj9</button>
-                        <button data-value="minor9">Min9</button>
-                        <button data-value="dominant9">Dom9</button>
-                        <button data-value="sus2">Sus2</button>
-                        <button data-value="sus4">Sus4</button>
-                        <button data-value="major6">Maj6</button>
-                        <button data-value="minor6">Min6</button>
-                        <button data-value="add9">Add9</button>
+                <div class="global-controls">
+                    <div class="control-group">
+                        <label>Octave:</label>
+                        <div class="octave-controls">
+                            <button id="octave-down">-</button>
+                            <span id="octave-display">4</span>
+                            <button id="octave-up">+</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Inversion:</label>
+                        <div class="button-group" id="inversion-buttons">
+                            <button data-value="0" class="selected">Root</button>
+                            <button data-value="1">First</button>
+                            <button data-value="2">Second</button>
+                            <button data-value="3">Third</button>
+                            <button data-value="4">Fourth</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Voicing:</label>
+                        <div class="button-group" id="voicing-buttons">
+                            <button data-value="close" class="selected">Close</button>
+                            <button data-value="open">Open</button>
+                            <button data-value="drop2">Drop 2</button>
+                            <button data-value="drop3">Drop 3</button>
+                            <button data-value="shell">Shell</button>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="global-controls">
-                <div class="control-group">
-                    <label>Octave:</label>
-                    <div class="octave-controls">
-                        <button id="octave-down">-</button>
-                        <span id="octave-display">4</span>
-                        <button id="octave-up">+</button>
+            <div class="scale-keyboard-section">
+                <h3>Scale Chords (A-J on keyboard to trigger)</h3>
+                <div id="scale-keyboard" class="scale-keyboard"></div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Visualization and Memory -->
+        <div class="visual-container">
+            <div class="memory-section">
+                <div class="memory-header">
+                    <h3>Chord Memory</h3>
+                    <div class="memory-controls">
+                        <button id="clear-memory" class="clear-button" title="Clear all memory slots">
+                            Clear All
+                        </button>
+                        <button id="memory-lock" class="lock-button">
+                            <span class="lock-icon">🔓</span>
+                        </button>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label>Inversion:</label>
-                    <div class="button-group" id="inversion-buttons">
-                        <button data-value="0" class="selected">Root</button>
-                        <button data-value="1">First</button>
-                        <button data-value="2">Second</button>
-                        <button data-value="3">Third</button>
-                        <button data-value="4">Fourth</button>
-                    </div>
+                <div class="memory-grid">
+                    <button class="memory-slot empty" data-slot="0" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="1" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="2" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="3" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="4" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="5" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="6" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="7" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="8" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="9" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="10" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="11" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="12" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="13" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="14" draggable="true">-</button>
+                    <button class="memory-slot empty" data-slot="15" draggable="true">-</button>
                 </div>
-                <div class="control-group">
-                    <label>Voicing:</label>
-                    <div class="button-group" id="voicing-buttons">
-                        <button data-value="close" class="selected">Close</button>
-                        <button data-value="open">Open</button>
-                        <button data-value="drop2">Drop 2</button>
-                        <button data-value="drop3">Drop 3</button>
-                        <button data-value="shell">Shell</button>
+                <div id="memory-trash" class="memory-trash">
+                    🗑️
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <div class="app-layout">
+        <div class="main-container">
+
+            <div class="visual-keyboard-section">
+                <h3>Piano Roll</h3>
+                <div class="keyboard-container">
+                    <div id="keyboard" class="visual-keyboard"></div>
+                </div>
+                <div class="keyboard-legend">
+                    <div class="legend-item">
+                        <span class="legend-color playing"></span>
+                        <span>Current Chord</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color in-scale"></span>
+                        <span>In Scale</span>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div id="keyboard"></div>
-        
-        <div class="scale-keyboard-section">
-            <h3>Scale Notes</h3>
-            <div id="scale-keyboard" class="scale-keyboard"></div>
-        </div>
-        
-        <div class="memory-section">
-            <div class="memory-header">
-                <h3>Chord Memory</h3>
-                <div class="memory-controls">
-                    <button id="clear-memory" class="clear-button" title="Clear all memory slots">
-                        Clear All
-                    </button>
-                    <button id="memory-lock" class="lock-button">
-                        <span class="lock-icon">🔓</span>
-                    </button>
-                </div>
-            </div>
-            <div class="memory-grid">
-                <button class="memory-slot empty" data-slot="0" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="1" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="2" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="3" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="4" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="5" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="6" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="7" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="8" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="9" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="10" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="11" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="12" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="13" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="14" draggable="true">-</button>
-                <button class="memory-slot empty" data-slot="15" draggable="true">-</button>
-            </div>
-            <div id="memory-trash" class="memory-trash">
-                🗑️
-            </div>
-        </div>
-        
     </div>
     <script src="app.js"></script>
 </body>

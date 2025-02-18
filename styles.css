@@ -292,6 +292,19 @@ select:hover {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 6px;
+    position: relative;
+}
+
+.chord-grid::after {
+    content: 'Press 1-8 for quick access • 9/0 to switch pages';
+    position: absolute;
+    bottom: -24px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0.7;
 }
 
 .chord-grid button {
@@ -302,6 +315,7 @@ select:hover {
     justify-content: center;
     font-size: 12px;
     font-weight: 500;
+    position: relative;
 }
 
 .chord-grid button:hover {
@@ -312,18 +326,28 @@ select:hover {
     transform: translateY(1px);
 }
 
+.chord-grid button::before {
+    content: attr(data-shortcut);
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 10px;
+    opacity: 0.5;
+}
+
 /* Keyboard container with indicator strip */
-#keyboard {
-    margin: 30px 0;
+#keyboard { 
+    height: 170px;
     position: relative;
+    display: flex;
+}
+
+.keyboard-container {
+    padding: 10px;
     background: var(--container-bg);
-    padding: 15px;
-    padding-top: 25px; /* Make room for indicators */
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     box-shadow: 0 10px 20px var(--shadow-color);
-    display: flex;
-    height: 220px;
-    border: 1px solid var(--border-color);
 }
 
 .key {
@@ -338,7 +362,7 @@ select:hover {
     border-radius: 0 0 6px 6px;
     border: 1px solid var(--key-white-border);
     z-index: 0;
-    width: calc(100% / 14);
+    width: calc(100% / 42) !important; /* 42 white keys (7 per octave * 6) */
     height: 100%;
     margin: 0 1px;
 }
@@ -346,13 +370,50 @@ select:hover {
 .key.black {
     background: var(--key-black-bg);
     border-radius: 0 0 4px 4px;
-    width: calc(100% / 14 * 0.7);
-    height: 65%;
+    width: calc(100% / 42 * 0.5) !important; /* Maintain proportion with white keys */
+    height: 60%;
     position: absolute;
     z-index: 1;
     transform: translateX(-50%);
     border: 1px solid var(--key-black-border);
 }
+
+/* Update black key positions for 6 octaves (octaves 1-6) */
+.key.black[data-note="C#1"] { left: calc((100% / 42) * 1); }
+.key.black[data-note="D#1"] { left: calc((100% / 42) * 2); }
+.key.black[data-note="F#1"] { left: calc((100% / 42) * 4); }
+.key.black[data-note="G#1"] { left: calc((100% / 42) * 5); }
+.key.black[data-note="A#1"] { left: calc((100% / 42) * 6); }
+
+.key.black[data-note="C#2"] { left: calc((100% / 42) * 8); }
+.key.black[data-note="D#2"] { left: calc((100% / 42) * 9); }
+.key.black[data-note="F#2"] { left: calc((100% / 42) * 11); }
+.key.black[data-note="G#2"] { left: calc((100% / 42) * 12); }
+.key.black[data-note="A#2"] { left: calc((100% / 42) * 13); }
+
+.key.black[data-note="C#3"] { left: calc((100% / 42) * 15); }
+.key.black[data-note="D#3"] { left: calc((100% / 42) * 16); }
+.key.black[data-note="F#3"] { left: calc((100% / 42) * 18); }
+.key.black[data-note="G#3"] { left: calc((100% / 42) * 19); }
+.key.black[data-note="A#3"] { left: calc((100% / 42) * 20); }
+
+.key.black[data-note="C#4"] { left: calc((100% / 42) * 22); }
+.key.black[data-note="D#4"] { left: calc((100% / 42) * 23); }
+.key.black[data-note="F#4"] { left: calc((100% / 42) * 25); }
+.key.black[data-note="G#4"] { left: calc((100% / 42) * 26); }
+.key.black[data-note="A#4"] { left: calc((100% / 42) * 27); }
+
+.key.black[data-note="C#5"] { left: calc((100% / 42) * 29); }
+.key.black[data-note="D#5"] { left: calc((100% / 42) * 30); }
+.key.black[data-note="F#5"] { left: calc((100% / 42) * 32); }
+.key.black[data-note="G#5"] { left: calc((100% / 42) * 33); }
+.key.black[data-note="A#5"] { left: calc((100% / 42) * 34); }
+
+.key.black[data-note="C#6"] { left: calc((100% / 42) * 36); }
+.key.black[data-note="D#6"] { left: calc((100% / 42) * 37); }
+.key.black[data-note="F#6"] { left: calc((100% / 42) * 39); }
+.key.black[data-note="G#6"] { left: calc((100% / 42) * 40); }
+.key.black[data-note="A#6"] { left: calc((100% / 42) * 41); }
 
 /* Remove the indicator light styles */
 .key::before {
@@ -428,7 +489,7 @@ select:hover {
 /* Global Controls */
 .global-controls {
     display: flex;
-    gap: 16px;
+    gap: 40px;
     background: var(--secondary-color);
     padding: 16px;
     border-radius: 12px;
@@ -536,7 +597,6 @@ select:hover {
 
 /* Memory Section */
 .memory-section {
-    margin-top: 24px;
     padding: 20px;
     background: var(--secondary-color);
     border-radius: 12px;
@@ -614,26 +674,14 @@ select:hover {
 }
 
 .memory-slot {
-    cursor: grab;
-}
-
-.memory-slot:active {
-    cursor: grabbing;
-}
-
-.memory-slot.drag-over {
-    border-color: var(--primary-color);
-    background: var(--secondary-color);
-}
-
-.memory-slot {
+    position: relative;
     aspect-ratio: 2;
     padding: 8px;
     border: 1px solid var(--border-color);
     background: var(--container-bg);
     border-radius: 8px;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     transition: all 0.2s ease;
     display: flex;
@@ -641,11 +689,25 @@ select:hover {
     align-items: center;
     justify-content: center;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.3;
     white-space: pre-line;
     min-width: 0;
     word-wrap: break-word;
     color: var(--text-color);
+    gap: 4px;
+    opacity: 0.4; /* Dim by default */
+    transition: opacity 0.2s ease;
+}
+
+.memory-slot .root {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.memory-slot .octave {
+    font-size: 11px;
+    opacity: 0.7;
 }
 
 .memory-slot:not(.empty) {
@@ -653,15 +715,17 @@ select:hover {
 }
 
 .memory-slot:not(.empty):hover {
-    background: white;
+    background: var(--container-bg);
     border-color: var(--primary-color);
     transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .memory-slot.empty {
     background: var(--container-bg);
     color: var(--border-color);
     cursor: default;
+    font-size: 16px;
 }
 
 .memory-slot:not(.empty).active {
@@ -669,6 +733,14 @@ select:hover {
     border-color: var(--primary-color);
     color: white;
     transform: translateY(1px);
+}
+
+.memory-slot:not(.empty).active .root {
+    color: white;
+}
+
+.memory-slot.active-page {
+    opacity: 1; /* Full opacity for active page */
 }
 
 /* Remove scale highlighting when override is active */
@@ -711,6 +783,16 @@ body, .container, .key, button, select {
     color: var(--text-color);
     transition: all 0.2s ease;
     user-select: none;
+    position: relative;
+}
+
+.scale-key::before {
+    content: attr(data-shortcut);
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 10px;
+    opacity: 0.5;
 }
 
 .scale-key:active,
@@ -724,4 +806,94 @@ body, .container, .key, button, select {
 .scale-key.playing {
     background: var(--key-white-playing);
     border-color: var(--success-color);
+}
+
+.app-layout {
+    display: flex;
+    gap: 20px;
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.main-container,
+.visual-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: var(--container-bg);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.visual-keyboard-section {
+    flex: 1;
+    background: var(--secondary-color);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.visual-keyboard {
+    height: 200px;
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.keyboard-legend {
+    margin-top: 12px;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.legend-color.playing {
+    background: var(--key-white-playing);
+    border-color: var(--success-color);
+}
+
+.legend-color.in-scale {
+    background: var(--key-in-scale-white);
+    border-color: var(--primary-color);
+}
+
+@media (max-width: 1024px) {
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .main-container,
+    .visual-container {
+        width: 100%;
+    }
+
+    .visual-keyboard {
+        height: 120px;
+    }
+}
+
+.memory-slot .shortcut {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 10px;
+    opacity: 0.5;
 } 

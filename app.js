@@ -17,6 +17,12 @@ class ChordGenerator {
         this.memoryLocked = false;
         this.chordMemory = new Array(16).fill(null);
         
+        this.overridePage = 0; // 0 for first 8 overrides, 1 for second 8
+        
+        // Add state tracking for memory keys
+        this.activeMemoryKey = null;
+        this.memoryPage = 0; // 0 for first 8 slots, 1 for second 8
+        
         this.setupKeyboard();
         this.setupControls();
         this.updateKeyboardVisuals();
@@ -33,18 +39,70 @@ class ChordGenerator {
 
         // Initialize theme
         this.setupThemeToggle();
+
+        // Add this to setupControls() after creating override buttons
+        document.querySelectorAll('#chord-type-buttons button').forEach((button, index) => {
+            const pageNum = Math.floor(index / 8);
+            const shortcutNum = (index % 8) + 1;
+            button.setAttribute('data-shortcut', shortcutNum);
+        });
+
+        // Call this at the end of constructor
+        this.updateOverrideButtonsVisibility();
+
+        // Add keyboard event listeners for scale keys
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            
+            const keyToIndex = {
+                'a': 0, 's': 1, 'd': 2, 'f': 3,
+                'g': 4, 'h': 5, 'j': 6
+            };
+            
+            const index = keyToIndex[e.key.toLowerCase()];
+            if (index !== undefined) {
+                const scaleKey = document.querySelectorAll('.scale-key')[index];
+                if (scaleKey) {
+                    scaleKey.classList.add('active');
+                    this.playChord(scaleKey.textContent, this.baseOctave);
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const keyToIndex = {
+                'a': 0, 's': 1, 'd': 2, 'f': 3,
+                'g': 4, 'h': 5, 'j': 6
+            };
+
+            const index = keyToIndex[e.key.toLowerCase()];
+            if (index !== undefined) {
+                const scaleKey = document.querySelectorAll('.scale-key')[index];
+                if (scaleKey) {
+                    scaleKey.classList.remove('active');
+                    this.stopChord();
+                }
+            }
+        });
+
+        // Add state tracking for override keys
+        this.activeOverrideKey = null;
+
+        // Initialize first page of memory slots as active
+        this.memoryPage = 0;
+        this.updateMemoryButtonsVisibility();
     }
 
     setupKeyboard() {
         const keyboard = document.getElementById('keyboard');
-        // Determine number of octaves based on screen width
-        const octaves = window.innerWidth <= 768 ? 1 : 2;
+        const octaves = 6;
+        const lowestOctave = 1;
         const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         const whiteNotes = notes.filter(note => !note.includes('#'));
         const blackNotes = notes.filter(note => note.includes('#'));
         
         // First create all white keys
-        for (let octave = 0; octave < octaves; octave++) {
+        for (let octave = lowestOctave; octave < octaves + lowestOctave; octave++) {
             whiteNotes.forEach(note => {
                 const key = document.createElement('div');
                 key.className = 'key white';
@@ -54,17 +112,21 @@ class ChordGenerator {
                 // Add mousedown handler with scale check
                 key.addEventListener('mousedown', () => {
                     if (this.isNotePlayable(note) || this.tempOverride) {
-                        this.playChord(note, this.baseOctave + octave);
+                        key.classList.add('active');
+                        this.playChord(note, octave);
                     }
                 });
-                key.addEventListener('mouseup', () => this.stopChord());
+                key.addEventListener('mouseup', () => {
+                    key.classList.remove('active');
+                    this.stopChord();
+                });
 
-                // Add touch handlers for white keys
+                // Add touch handlers
                 key.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     if (this.isNotePlayable(note) || this.tempOverride) {
                         key.classList.add('active');
-                        this.playChord(note, this.baseOctave + octave);
+                        this.playChord(note, octave);
                     }
                 }, { passive: false });
 
@@ -76,23 +138,42 @@ class ChordGenerator {
             });
         }
 
-        // Then create and position black keys
-        let whiteKeyWidth = 100 / (whiteNotes.length * octaves); // percentage width of each white key
-        let blackKeyIndex = 0;
-        
-        for (let octave = 0; octave < octaves; octave++) {
-            const octaveOffset = (octave) * whiteNotes.length * whiteKeyWidth;
-            
-            // C#
-            this.createBlackKey(keyboard, 'C#', octave, octaveOffset + whiteKeyWidth * 1);
-            // D#
-            this.createBlackKey(keyboard, 'D#', octave, octaveOffset + whiteKeyWidth * 2);
-            // F#
-            this.createBlackKey(keyboard, 'F#', octave, octaveOffset + whiteKeyWidth * 4);
-            // G#
-            this.createBlackKey(keyboard, 'G#', octave, octaveOffset + whiteKeyWidth * 5);
-            // A#
-            this.createBlackKey(keyboard, 'A#', octave, octaveOffset + whiteKeyWidth * 6);
+        // Create black keys with fixed octaves
+        for (let octave = lowestOctave; octave < octaves + lowestOctave; octave++) {
+            blackNotes.forEach(note => {
+                const key = document.createElement('div');
+                key.className = 'key black';
+                key.dataset.note = `${note}${octave}`;
+                keyboard.appendChild(key);
+
+                // Mouse events
+                key.addEventListener('mousedown', () => {
+                    if (this.isNotePlayable(note) || this.tempOverride) {
+                        key.classList.add('active');
+                        this.playChord(note, octave);
+                    }
+                });
+
+                key.addEventListener('mouseup', () => {
+                    key.classList.remove('active');
+                    this.stopChord();
+                });
+
+                // Touch events
+                key.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (this.isNotePlayable(note) || this.tempOverride) {
+                        key.classList.add('active');
+                        this.playChord(note, octave);
+                    }
+                }, { passive: false });
+
+                key.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    key.classList.remove('active');
+                    this.stopChord();
+                }, { passive: false });
+            });
         }
 
         // Add keyboard event listeners
@@ -112,55 +193,6 @@ class ChordGenerator {
                 this.stopChord();
             }
         });
-    }
-
-    createBlackKey(keyboard, note, octave, leftPosition) {
-        const key = document.createElement('div');
-        key.className = 'key black';
-        key.dataset.note = `${note}${octave}`;
-        key.style.left = `${leftPosition}%`;
-        keyboard.appendChild(key);
-
-        // Mouse events
-        key.addEventListener('mousedown', () => {
-            if (this.isNotePlayable(note) || this.tempOverride) {
-                key.classList.add('active');
-                this.playChord(note, this.baseOctave + octave);
-            }
-        });
-
-        key.addEventListener('mouseup', () => {
-            key.classList.remove('active');
-            this.stopChord();
-        });
-
-        key.addEventListener('mouseleave', () => {
-            if (key.classList.contains('active')) {
-                key.classList.remove('active');
-                this.stopChord();
-            }
-        });
-
-        // Touch events
-        key.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (this.isNotePlayable(note) || this.tempOverride) {
-                key.classList.add('active');
-                this.playChord(note, this.baseOctave + octave);
-            }
-        }, { passive: false });
-
-        key.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            key.classList.remove('active');
-            this.stopChord();
-        }, { passive: false });
-
-        key.addEventListener('touchcancel', (e) => {
-            e.preventDefault();
-            key.classList.remove('active');
-            this.stopChord();
-        }, { passive: false });
     }
 
     setupControls() {
@@ -243,7 +275,7 @@ class ChordGenerator {
         });
         
         document.getElementById('octave-down').addEventListener('click', () => {
-            if (this.baseOctave > 2) {  // Limit lower octave
+            if (this.baseOctave > 1) {  // Limit lower octave
                 this.baseOctave--;
                 octaveDisplay.textContent = this.baseOctave;
                 this.updateKeyboardVisuals();
@@ -309,6 +341,117 @@ class ChordGenerator {
 
         // Setup drag and drop for memory slots
         this.setupMemoryDragDrop();
+
+        // Update override keyboard shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+
+            // Switch override pages with 9 and 0 keys
+            if (e.key === '9') {
+                this.overridePage = 0;
+                this.updateOverrideButtonsVisibility();
+                return;
+            }
+            if (e.key === '0') {
+                this.overridePage = 1;
+                this.updateOverrideButtonsVisibility();
+                return;
+            }
+
+            // Handle number keys 1-8 for override chords
+            const num = parseInt(e.key);
+            if (num >= 1 && num <= 8) {
+                this.activeOverrideKey = e.key;
+                const index = (this.overridePage * 8) + (num - 1);
+                const button = document.querySelectorAll('#chord-type-buttons button')[index];
+                if (button) {
+                    // Clear previous selection
+                    document.querySelectorAll('#chord-type-buttons button').forEach(b => 
+                        b.classList.remove('selected'));
+                    
+                    // Select and activate the override
+                    button.classList.add('selected');
+                    this.tempOverride = button.dataset.value;
+                    document.getElementById('keyboard').classList.add('override-active');
+
+                    // If a scale key is currently active, replay it with the new override
+                    const activeScaleKey = document.querySelector('.scale-key.active');
+                    if (activeScaleKey) {
+                        const note = activeScaleKey.textContent;
+                        this.playChord(note, this.baseOctave);
+                    }
+                }
+            }
+        });
+
+        // Update keyup handler to only clear override when both keys are released
+        window.addEventListener('keyup', (e) => {
+            const num = parseInt(e.key);
+            if (num >= 1 && num <= 8 && e.key === this.activeOverrideKey) {
+                // Only clear if no scale key is active
+                if (!document.querySelector('.scale-key.active')) {
+                    document.querySelectorAll('#chord-type-buttons button').forEach(b => 
+                        b.classList.remove('selected'));
+                    this.tempOverride = null;
+                    document.getElementById('keyboard').classList.remove('override-active');
+                }
+                this.activeOverrideKey = null;
+            }
+        });
+
+        // Add keyboard shortcuts for memory slots
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+
+            // Switch memory pages with O and P keys
+            if (e.key.toLowerCase() === 'o') {
+                this.memoryPage = 0;
+                this.updateMemoryButtonsVisibility();
+                return;
+            }
+            if (e.key.toLowerCase() === 'p') {
+                this.memoryPage = 1;
+                this.updateMemoryButtonsVisibility();
+                return;
+            }
+
+            // Map Q-I keys to memory slots
+            const memoryKeyMap = {
+                'q': 0, 'w': 1, 'e': 2, 'r': 3,
+                't': 4, 'y': 5, 'u': 6, 'i': 7
+            };
+
+            const index = memoryKeyMap[e.key.toLowerCase()];
+            if (index !== undefined) {
+                this.activeMemoryKey = e.key;
+                const slotIndex = (this.memoryPage * 8) + index;
+                const memory = this.chordMemory[slotIndex];
+                
+                if (memory) {
+                    const slot = document.querySelector(`.memory-slot[data-slot="${slotIndex}"]`);
+                    slot.classList.add('active');
+                    this.playMemoryChord(memory);
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const memoryKeyMap = {
+                'q': 0, 'w': 1, 'e': 2, 'r': 3,
+                't': 4, 'y': 5, 'u': 6, 'i': 7
+            };
+
+            const index = memoryKeyMap[e.key.toLowerCase()];
+            if (index !== undefined && e.key.toLowerCase() === this.activeMemoryKey?.toLowerCase()) {
+                const slotIndex = (this.memoryPage * 8) + index;
+                const slot = document.querySelector(`.memory-slot[data-slot="${slotIndex}"]`);
+                if (slot) {
+                    slot.classList.remove('active');
+                    this.stopChord();
+                }
+                this.activeMemoryKey = null;
+            }
+        });
     }
 
     setupMemoryDragDrop() {
@@ -571,12 +714,10 @@ class ChordGenerator {
     }
 
     playChord(note, octave) {
-        // Generate and play the chord
         const notes = this.getChordNotes(note, octave);
         
-        // Only play if we have notes
         if (notes.length > 0) {
-            // First remove any existing playing highlights
+            // Remove existing playing highlights
             document.querySelectorAll('.key.playing').forEach(key => {
                 key.classList.remove('playing');
             });
@@ -584,22 +725,21 @@ class ChordGenerator {
             // Add playing class to all keys in the chord
             notes.forEach(noteWithOctave => {
                 const [noteName, noteOctave] = noteWithOctave.split(/(\d+)/);
-                const relativeOctave = noteOctave - this.baseOctave;
-                const key = document.querySelector(`.key[data-note="${noteName}${relativeOctave}"]`);
+                const key = document.querySelector(`.key[data-note="${noteName}${noteOctave}"]`);
                 if (key) {
                     key.classList.add('playing');
                 }
             });
 
+            // Play the sound
             this.synth.releaseAll();
             this.synth.triggerAttack(notes);
+
+            // Add to memory
+            this.addToMemory(note, octave, notes);
         }
 
-        // Clear temporary selections after playing
         this.clearTemporarySelections();
-
-        // Add to memory (now storing both scale and override chords)
-        this.addToMemory(note, octave, notes);
     }
 
     clearTemporarySelections() {
@@ -616,7 +756,11 @@ class ChordGenerator {
         document.querySelectorAll('.key.playing').forEach(key => {
             key.classList.remove('playing');
         });
-        this.clearTemporarySelections();
+        
+        // Only clear override if no keys are being held
+        if (!document.querySelector('.scale-key.active') && !this.activeOverrideKey) {
+            this.clearTemporarySelections();
+        }
     }
 
     updateInversionAvailability() {
@@ -719,8 +863,7 @@ class ChordGenerator {
             // Add playing class to all keys in the chord
             notes.forEach(noteWithOctave => {
                 const [noteName, noteOctave] = noteWithOctave.split(/(\d+)/);
-                const relativeOctave = noteOctave - this.baseOctave;
-                const key = document.querySelector(`.key[data-note="${noteName}${relativeOctave}"]`);
+                const key = document.querySelector(`.key[data-note="${noteName}${noteOctave}"]`);
                 if (key) {
                     key.classList.add('playing');
                 }
@@ -763,15 +906,16 @@ class ChordGenerator {
         document.querySelectorAll('.memory-slot').forEach((slot, index) => {
             const memory = this.chordMemory[index];
             if (memory) {
-                const chordName = memory.override ? memory.override : 'Scale';
-                const inversionNames = ['Root', '1st', '2nd', '3rd', '4th'];
-                const details = [
-                    `${memory.baseNote} ${chordName}`,
-                    memory.override ? '' : memory.extension,
-                    `${memory.voicing} voicing`,
-                    `${inversionNames[memory.inversion]} inv`,
-                    `oct ${memory.octave}`
-                ].filter(line => line !== '').join('\n');
+                let chordType = memory.override;
+                if (!chordType) {
+                    chordType = this.getChordType(memory.notes, memory);
+                }
+                
+                // Add shortcut hint
+                const shortcutKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'];
+                const shortcut = shortcutKeys[index % 8];
+                
+                const details = `<span class="shortcut">${shortcut}</span><span class="root">${memory.baseNote}</span>${chordType ? ' ' + chordType : ''}\n<span class="octave">oct ${memory.octave} - inv ${memory.inversion}</span>`;
                 
                 slot.innerHTML = details;
                 slot.classList.remove('empty');
@@ -882,7 +1026,9 @@ class ChordGenerator {
         const currentScale = modeIntervals[this.currentMode];
 
         // Create scale keys
-        const scaleKeys = []; // Store scale keys for keyboard mapping
+        const scaleKeys = [];
+        const shortcuts = ['A', 'S', 'D', 'F', 'G', 'H', 'J'];
+        
         currentScale.forEach((interval, index) => {
             const noteNum = (keyOffset + interval) % 12;
             const note = numberToNote[noteNum];
@@ -890,11 +1036,12 @@ class ChordGenerator {
             const key = document.createElement('div');
             key.className = 'scale-key';
             key.textContent = note;
+            key.setAttribute('data-shortcut', shortcuts[index]);
             
             // Store reference to scale key and note
             scaleKeys[index] = { element: key, note };
             
-            // Mouse events
+            // Mouse events only
             key.addEventListener('mousedown', () => {
                 key.classList.add('active');
                 this.playChord(note, this.baseOctave);
@@ -920,36 +1067,6 @@ class ChordGenerator {
 
             scaleKeyboard.appendChild(key);
         });
-
-        // Add keyboard event listeners for A-G keys
-        window.addEventListener('keydown', (e) => {
-            if (e.repeat) return; // Prevent key repeat
-            
-            const keyToIndex = {
-                'a': 0, 's': 1, 'd': 2, 'f': 3,
-                'g': 4, 'h': 5, 'j': 6
-            };
-            const index = keyToIndex[e.key.toLowerCase()];
-            if (index !== undefined && scaleKeys[index]) {
-                const { element, note } = scaleKeys[index];
-                element.classList.add('active');
-                this.playChord(note, this.baseOctave);
-            }
-        });
-
-        window.addEventListener('keyup', (e) => {
-            const keyToIndex = {
-                'a': 0, 's': 1, 'd': 2, 'f': 3,
-                'g': 4, 'h': 5, 'j': 6
-            };
-
-            const index = keyToIndex[e.key.toLowerCase()];
-            if (index !== undefined && scaleKeys[index]) {
-                const { element } = scaleKeys[index];
-                element.classList.remove('active');
-                this.stopChord();
-            }
-        });
     }
 
     setupOctaveKeyboardShortcuts() {
@@ -968,6 +1085,103 @@ class ChordGenerator {
                     document.getElementById('octave-display').textContent = this.baseOctave;
                     this.updateKeyboardVisuals();
                 }
+            }
+        });
+    }
+
+    updateOverrideButtonsVisibility() {
+        const buttons = document.querySelectorAll('#chord-type-buttons button');
+        buttons.forEach((button, index) => {
+            if (index >= this.overridePage * 8 && index < (this.overridePage + 1) * 8) {
+                button.style.display = 'block';
+            } else {
+                button.style.display = 'none';
+            }
+        });
+    }
+
+    getChordType(notes, memory) {
+        if (!notes || notes.length < 3) return '';
+
+        const noteToNumber = {
+            'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+            'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+        };
+
+        // First un-invert the chord if needed
+        let normalizedNotes = [...notes];
+        if (memory && memory.inversion > 0) {
+            // Extract octaves and note names
+            let parsed = notes.map(note => {
+                const [noteName, octave] = note.split(/(\d+)/);
+                return {
+                    note: noteName,
+                    octave: parseInt(octave),
+                    value: noteToNumber[noteName] + (parseInt(octave) * 12)
+                };
+            });
+
+            // Move inverted notes down an octave
+            for (let i = 0; i < memory.inversion; i++) {
+                parsed[i].octave--;
+            }
+
+            // Sort by pitch
+            parsed.sort((a, b) => a.value - b.value);
+
+            // Convert back to note strings
+            normalizedNotes = parsed.map(p => `${p.note}${p.octave}`);
+        }
+
+        // Extract just the note names and normalize to same octave
+        const baseNotes = normalizedNotes.map(note => {
+            const [noteName] = note.split(/(\d+)/);
+            return noteName;
+        });
+
+        // Get root note number
+        const rootNum = noteToNumber[baseNotes[0]];
+        
+        // Calculate intervals relative to root
+        const intervals = baseNotes.map(note => {
+            const num = noteToNumber[note];
+            return (num - rootNum + 12) % 12;
+        }).sort((a, b) => a - b);
+
+        // Convert to interval string for pattern matching
+        const intervalPattern = intervals.join(',');
+
+        // Define common chord patterns
+        const chordPatterns = {
+            '0,4,7': 'maj',
+            '0,3,7': 'min',
+            '0,3,6': 'dim',
+            '0,4,8': 'aug',
+            '0,4,7,10': 'dom7',
+            '0,4,7,11': 'maj7',
+            '0,3,7,10': 'min7',
+            '0,3,6,9': 'dim7',
+            '0,4,7,10,14': 'dom9',
+            '0,4,7,11,14': 'maj9',
+            '0,3,7,10,14': 'min9',
+            '0,2,7': 'sus2',
+            '0,5,7': 'sus4',
+            '0,4,7,9': 'maj6',
+            '0,3,7,9': 'min6',
+            '0,4,7,14': 'add9'
+        };
+
+        return chordPatterns[intervalPattern] || '';
+    }
+
+    updateMemoryButtonsVisibility() {
+        const slots = document.querySelectorAll('.memory-slot');
+        slots.forEach((slot, index) => {
+            // Instead of hiding, just update opacity via class
+            if (index >= this.memoryPage * 8 && index < (this.memoryPage + 1) * 8) {
+                slot.classList.add('active-page');
+            } else {
+                slot.classList.remove('active-page');
             }
         });
     }
