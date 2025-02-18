@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="controls">
+            <div class="control-row">
+                <div class="scale-section">
+                    <h3>Scale & Mode</h3>
+                    <div class="control-group">
+                        <label for="key-select">Key:</label>
+                        <select id="key-select">
+                            <option value="C">C</option>
+                            <option value="C#">C#</option>
+                            <option value="D">D</option>
+                            <option value="D#">D#</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="F#">F#</option>
+                            <option value="G">G</option>
+                            <option value="G#">G#</option>
+                            <option value="A">A</option>
+                            <option value="A#">A#</option>
+                            <option value="B">B</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="mode-select">Mode:</label>
+                        <select id="mode-select">
+                            <option value="major">Major</option>
+                            <option value="minor">Minor</option>
+                            <option value="dorian">Dorian</option>
+                            <option value="phrygian">Phrygian</option>
+                            <option value="lydian">Lydian</option>
+                            <option value="mixolydian">Mixolydian</option>
+                            <option value="locrian">Locrian</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Extensions:</label>
+                        <div class="button-group" id="chord-extension-buttons">
+                            <button data-value="triad" class="selected">Triad</button>
+                            <button data-value="seventh">Seventh</button>
+                            <button data-value="ninth">Ninth</button>
+                            <button data-value="add9">Add9</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="override-section">
+                    <h3>Override Chords</h3>
+                    <div class="chord-grid" id="chord-type-buttons">
+                        <button data-value="major">Major</button>
+                        <button data-value="minor">Minor</button>
+                        <button data-value="diminished">Dim</button>
+                        <button data-value="augmented">Aug</button>
+                        <button data-value="major7">Maj7</button>
+                        <button data-value="minor7">Min7</button>
+                        <button data-value="dominant7">Dom7</button>
+                        <button data-value="diminished7">Dim7</button>
+                        <button data-value="major9">Maj9</button>
+                        <button data-value="minor9">Min9</button>
+                        <button data-value="dominant9">Dom9</button>
+                        <button data-value="sus2">Sus2</button>
+                        <button data-value="sus4">Sus4</button>
+                        <button data-value="major6">Maj6</button>
+                        <button data-value="minor6">Min6</button>
+                        <button data-value="add9">Add9</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="global-controls">
+                <div class="control-group">
+                    <label>Octave:</label>
+                    <div class="octave-controls">
+                        <button id="octave-down">-</button>
+                        <span id="octave-display">4</span>
+                        <button id="octave-up">+</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Inversion:</label>
+                    <div class="button-group" id="inversion-buttons">
+                        <button data-value="0" class="selected">Root</button>
+                        <button data-value="1">First</button>
+                        <button data-value="2">Second</button>
+                        <button data-value="3">Third</button>
+                        <button data-value="4">Fourth</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Voicing:</label>
+                    <div class="button-group" id="voicing-buttons">
+                        <button data-value="close" class="selected">Close</button>
+                        <button data-value="open">Open</button>
+                        <button data-value="drop2">Drop 2</button>
+                        <button data-value="drop3">Drop 3</button>
+                        <button data-value="shell">Shell</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="keyboard"></div>
+        
+        <div class="memory-section">
+            <div class="memory-header">
+                <h3>Chord Memory</h3>
+                <button id="memory-lock" class="lock-button">
+                    <span class="lock-icon">🔓</span>
+                </button>
+            </div>
+            <div class="memory-grid">
+                <button class="memory-slot empty" data-slot="0">-</button>
+                <button class="memory-slot empty" data-slot="1">-</button>
+                <button class="memory-slot empty" data-slot="2">-</button>
+                <button class="memory-slot empty" data-slot="3">-</button>
+                <button class="memory-slot empty" data-slot="4">-</button>
+                <button class="memory-slot empty" data-slot="5">-</button>
+                <button class="memory-slot empty" data-slot="6">-</button>
+                <button class="memory-slot empty" data-slot="7">-</button>
+            </div>
+        </div>
+        
+    </div>
+    <script src="app.js"></script>
+</body>
+</html> 

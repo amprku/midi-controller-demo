@@ -1,0 +1,470 @@
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #f8f9fa;
+    --border-color: #e0e0e0;
+    --text-color: #2c3e50;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --highlight-color: #b3e6ff;
+    --success-color: #4CAF50;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 768px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+/* Controls Section */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.control-row {
+    display: flex;
+    gap: 16px;
+}
+
+.scale-section,
+.override-section {
+    flex: 1;
+    background: var(--secondary-color);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.scale-section:hover,
+.override-section:hover {
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+h3 {
+    margin: 0 0 12px 0;
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Form Controls */
+.control-group {
+    margin-bottom: 12px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+select:hover {
+    border-color: var(--primary-color);
+}
+
+/* Button Groups */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.button-group button {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    color: var(--text-color);
+}
+
+.button-group button:hover {
+    background: var(--secondary-color);
+    border-color: var(--primary-color);
+}
+
+.button-group button.selected {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.button-group button.temp-selected {
+    background: var(--highlight-color);
+    border-color: var(--primary-color);
+}
+
+/* Override Chord Grid */
+.chord-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.chord-grid button {
+    aspect-ratio: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chord-grid button:hover {
+    background: var(--secondary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.chord-grid button.selected {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transform: translateY(1px);
+}
+
+/* Keyboard container with indicator strip */
+#keyboard {
+    margin: 30px 0;
+    position: relative;
+    background: linear-gradient(to bottom, #fff 0%, #f8f9fa 100%);
+    padding: 15px;
+    padding-top: 25px; /* Make room for indicators */
+    border-radius: 12px;
+    box-shadow: 0 10px 20px var(--shadow-color);
+    display: flex;
+    height: 220px;
+}
+
+.key {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.key.white {
+    background: linear-gradient(to bottom, #ffffff 0%, #f9f9f9 100%);
+    border-radius: 0 0 6px 6px;
+    border: 1px solid #ddd;
+    z-index: 0;
+    width: calc(100% / 14);
+    height: 100%;
+    margin: 0 1px;
+}
+
+.key.black {
+    background: linear-gradient(to bottom, #333 0%, #222 100%);
+    border-radius: 0 0 4px 4px;
+    width: calc(100% / 14 * 0.7);
+    height: 65%;
+    position: absolute;
+    z-index: 1;
+    transform: translateX(-50%);
+    border: 1px solid #000;
+}
+
+/* Remove the indicator light styles */
+.key::before {
+    display: none;
+}
+
+/* Available keys styling */
+.key.white.in-scale {
+    background: linear-gradient(to bottom, #ffffff 0%, #f0f7ff 100%);
+    border-color: var(--primary-color);
+    box-shadow: inset 0 -2px 0 var(--primary-color);
+}
+
+.key.black.in-scale {
+    background: linear-gradient(to bottom, #2c3e50 0%, #1a2533 100%);
+    border-color: var(--primary-color);
+    box-shadow: inset 0 -2px 0 var(--primary-color);
+}
+
+/* Override styling */
+.override-active .key.white {
+    background: linear-gradient(to bottom, #ffffff 0%, #f0f7ff 100%);
+    border-color: var(--primary-color);
+    box-shadow: inset 0 -2px 0 var(--primary-color);
+}
+
+.override-active .key.black {
+    background: linear-gradient(to bottom, #2c3e50 0%, #1a2533 100%);
+    border-color: var(--primary-color);
+    box-shadow: inset 0 -2px 0 var(--primary-color);
+}
+
+/* Not available keys */
+.key:not(.in-scale):not(.override-active) {
+    cursor: not-allowed;
+}
+
+/* Active (pressed) key */
+.key.white:active,
+.key.white.active {
+    background: linear-gradient(to bottom, var(--primary-color) 0%, #3a7cbd 100%);
+    border-color: var(--primary-color);
+    transform: translateY(1px);
+}
+
+.key.black:active,
+.key.black.active {
+    background: linear-gradient(to bottom, var(--primary-color) 0%, #3a7cbd 100%);
+    border-color: var(--primary-color);
+    transform: translateY(1px) translateX(-50%);
+}
+
+/* Playing chord notes */
+.key.white.playing {
+    background: linear-gradient(to bottom, #e8f5e9 0%, #c8e6c9 100%);
+    border-color: var(--success-color);
+}
+
+.key.black.playing {
+    background: linear-gradient(to bottom, var(--success-color) 0%, #388e3c 100%);
+    border-color: var(--success-color);
+}
+
+/* Display Section */
+.display {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--secondary-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Global Controls */
+.global-controls {
+    display: flex;
+    gap: 16px;
+    background: var(--secondary-color);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.octave-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.octave-controls button {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.octave-controls button:hover {
+    background: var(--secondary-color);
+    border-color: var(--primary-color);
+}
+
+#octave-display {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.chord-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chord-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chord-mode-switch {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.chord-mode-switch button {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.chord-mode-switch button.selected {
+    background: #e0e0e0;
+    border-color: #999;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.chord-panel {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chord-panel.active {
+    display: flex;
+}
+
+#simple-chords .button-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+#advanced-chords .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.button-group button {
+    padding: 8px 5px;
+    font-size: 12px;
+}
+
+.button-group button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Memory Section */
+.memory-section {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--secondary-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.memory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.lock-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.lock-button:hover {
+    background: var(--border-color);
+}
+
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    padding: 4px;
+}
+
+.memory-slot {
+    aspect-ratio: 2;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.1;
+    white-space: pre-line;
+    min-width: 0;
+    word-wrap: break-word;
+}
+
+.memory-slot:not(.empty) {
+    background: var(--secondary-color);
+}
+
+.memory-slot:not(.empty):hover {
+    background: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.memory-slot.empty {
+    color: #999;
+    cursor: default;
+    background: white;
+}
+
+.memory-slot:not(.empty).active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transform: translateY(1px);
+}
+
+/* Remove scale highlighting when override is active */
+.override-active .key::before {
+    background: var(--primary-color);
+    box-shadow: 0 0 5px var(--primary-color);
+} 
