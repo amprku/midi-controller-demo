@@ -716,21 +716,28 @@ class ChordGenerator {
 
     // Add this new method
     setupTouchHandling() {
-        // Prevent default touch behaviors
-        document.addEventListener('touchstart', (e) => {
+        const keyboard = document.getElementById('keyboard');
+        
+        // Only prevent default touch behaviors on the keyboard
+        keyboard.addEventListener('touchstart', (e) => {
             if (e.target.classList.contains('key')) {
                 e.preventDefault();
             }
         }, { passive: false });
 
-        document.addEventListener('touchmove', (e) => {
+        keyboard.addEventListener('touchmove', (e) => {
             e.preventDefault();
         }, { passive: false });
 
-        // Prevent double-tap zoom
-        document.addEventListener('dblclick', (e) => {
-            e.preventDefault();
-        });
+        keyboard.addEventListener('touchend', (e) => {
+            if (e.target.classList.contains('key')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Remove the global touch prevention
+        // document.addEventListener('touchmove'...)
+        // document.addEventListener('dblclick'...)
     }
 
     // Add new method to rebuild keyboard

@@ -78,6 +78,7 @@
         min-height: 100vh;
         height: auto;
         position: relative;
+        -webkit-overflow-scrolling: touch;
     }
 
     .container {
@@ -85,6 +86,7 @@
         min-height: min-content;
         height: auto;
         margin-bottom: 20px;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Stack the scale and override sections vertically */
@@ -156,9 +158,10 @@ body {
     margin: 0;
     padding: 20px;
     min-height: 100vh;
-    height: auto;
+    height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     position: relative;
     transition: all 0.3s ease;
 }
@@ -172,6 +175,7 @@ body {
     box-shadow: 0 10px 30px var(--shadow-color);
     overflow-x: hidden; /* Prevent horizontal scroll */
     overflow-y: visible; /* Allow content to flow */
+    -webkit-overflow-scrolling: touch;
     transition: all 0.3s ease;
     min-height: min-content;
     height: auto;
