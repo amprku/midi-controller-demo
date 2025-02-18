@@ -56,6 +56,21 @@ class ChordGenerator {
                     }
                 });
                 key.addEventListener('mouseup', () => this.stopChord());
+
+                // Add touch handlers for white keys
+                key.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (this.isNotePlayable(note) || this.tempOverride) {
+                        key.classList.add('active');
+                        this.playChord(note, this.baseOctave + octave);
+                    }
+                }, { passive: false });
+
+                key.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    key.classList.remove('active');
+                    this.stopChord();
+                }, { passive: false });
             });
         }
 
@@ -104,7 +119,7 @@ class ChordGenerator {
         key.style.left = `${leftPosition}%`;
         keyboard.appendChild(key);
 
-        // Add mousedown handler with scale check
+        // Mouse events
         key.addEventListener('mousedown', () => {
             if (this.isNotePlayable(note) || this.tempOverride) {
                 key.classList.add('active');
@@ -112,13 +127,11 @@ class ChordGenerator {
             }
         });
 
-        // Use mousedown/up and touchstart/end for better mobile support
         key.addEventListener('mouseup', () => {
             key.classList.remove('active');
             this.stopChord();
         });
 
-        // Handle mouse leaving the key while pressed
         key.addEventListener('mouseleave', () => {
             if (key.classList.contains('active')) {
                 key.classList.remove('active');
@@ -126,7 +139,7 @@ class ChordGenerator {
             }
         });
 
-        // Improve touch handling
+        // Touch events
         key.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (this.isNotePlayable(note) || this.tempOverride) {
@@ -136,6 +149,12 @@ class ChordGenerator {
         }, { passive: false });
 
         key.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            key.classList.remove('active');
+            this.stopChord();
+        }, { passive: false });
+
+        key.addEventListener('touchcancel', (e) => {
             e.preventDefault();
             key.classList.remove('active');
             this.stopChord();
@@ -501,7 +520,7 @@ class ChordGenerator {
         // Clear temporary selections after playing
         this.clearTemporarySelections();
 
-        // Add to memory after playing
+        // Add to memory (now storing both scale and override chords)
         this.addToMemory(note, octave, notes);
     }
 
@@ -607,10 +626,8 @@ class ChordGenerator {
         this.currentInversion = memory.inversion;
         this.currentVoicing = memory.voicing;
 
-        // Add override class to keyboard if it's an override chord
-        if (memory.override) {
-            document.getElementById('keyboard').classList.add('override-active');
-        }
+        // Force override mode to bypass scale restrictions
+        document.getElementById('keyboard').classList.add('override-active');
 
         // Generate and play the chord without adding to memory
         const notes = this.getChordNotes(memory.baseNote, memory.octave);
