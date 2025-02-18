@@ -28,6 +28,9 @@ class ChordGenerator {
         window.addEventListener('resize', () => {
             this.rebuildKeyboard();
         });
+
+        // Initialize theme
+        this.setupThemeToggle();
     }
 
     setupKeyboard() {
@@ -736,6 +739,26 @@ class ChordGenerator {
         keyboard.innerHTML = ''; // Clear existing keyboard
         this.setupKeyboard();
         this.updateKeyboardVisuals();
+    }
+
+    // Add new method
+    setupThemeToggle() {
+        const toggle = document.getElementById('theme-toggle');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // Set initial theme based on user preference
+        if (prefersDark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            toggle.querySelector('.theme-toggle-icon').textContent = '🌜';
+        }
+
+        toggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            toggle.querySelector('.theme-toggle-icon').textContent = newTheme === 'dark' ? '🌜' : '🌞';
+        });
     }
 }
 
